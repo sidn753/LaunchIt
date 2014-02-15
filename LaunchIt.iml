@@ -8,6 +8,7 @@
       <excludeFolder url="file:///mnt/systemStuff/home/arne/mystuff/devel/android/LaunchIt/.gradle" />
       <excludeFolder url="file:///mnt/systemStuff/home/arne/mystuff/devel/android/LaunchIt/build" />
     </content>
+    <orderEntry type="jdk" jdkName="1.7" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>
