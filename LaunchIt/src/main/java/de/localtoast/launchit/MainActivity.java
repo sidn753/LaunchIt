@@ -45,7 +45,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void toggleOverlayService() {
-        Intent intent = new Intent(this, SidebarOverlay.class);
+        Intent intent = new Intent(this, TouchOverlay.class);
 
         if (!stopService(intent)) {
             startService(intent);

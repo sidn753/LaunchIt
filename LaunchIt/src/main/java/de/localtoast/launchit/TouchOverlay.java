@@ -22,13 +22,15 @@ import android.app.Service;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.IBinder;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 
 /**
  * Created by Arne Augenstein on 2/15/14.
  */
-public class SidebarOverlay extends Service {
+public class TouchOverlay extends Service {
     LinearLayout layout;
 
     @Override
@@ -48,6 +50,16 @@ public class SidebarOverlay extends Service {
                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
         WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         wm.addView(layout, params);
+
+        layout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                Intent mainIntent = new Intent(TouchOverlay.this, MainActivity.class);
+                mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                getApplication().startActivity(mainIntent);
+                return true;
+            }
+        });
     }
 
     @Override

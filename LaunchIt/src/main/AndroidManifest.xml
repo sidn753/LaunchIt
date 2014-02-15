@@ -10,7 +10,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
 
-        <service android:name=".SidebarOverlay"></service>
+        <service android:name=".TouchOverlay"></service>
         <activity
             android:name="de.localtoast.launchit.MainActivity"
             android:label="@string/app_name">
