@@ -25,14 +25,11 @@ public class SidebarOverlay extends Service {
         layout = new LinearLayout(this);
         layout.setBackgroundColor(0x88ff0000);
         WindowManager.LayoutParams params =
-                new WindowManager.LayoutParams(WindowManager.LayoutParams.MATCH_PARENT,
-                                               WindowManager.LayoutParams.MATCH_PARENT,
-                                               WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY,
-                                               0 | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                                               PixelFormat.TRANSLUCENT);
+            new WindowManager.LayoutParams(150, 150, WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH |
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
         WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         wm.addView(layout, params);
-
     }
 
     @Override

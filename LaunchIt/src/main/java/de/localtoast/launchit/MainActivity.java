@@ -19,7 +19,7 @@ public class MainActivity extends ActionBarActivity {
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction().add(R.id.container, new Fragment())
-                    .commit();
+                .commit();
         }
 
         toggleOverlayService();
@@ -33,7 +33,6 @@ public class MainActivity extends ActionBarActivity {
             startService(intent);
         }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
