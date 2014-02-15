@@ -1,6 +1,6 @@
 /*
  * This file is part of Launch It!.
- * Copyright (c) 2014
+ * Copyright (c) 2014.
  *
  * Launch It! is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 package de.localtoast.launchit;
 
 /**
- * Created by arne on 2/15/14.
+ * Created by Arne Augenstein on 2/15/14.
  */
 public class AppDetector {
     public void getTopApp() {
