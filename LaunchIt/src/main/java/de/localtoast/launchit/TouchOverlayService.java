@@ -45,7 +45,7 @@ public class TouchOverlayService extends Service {
         super.onCreate();
 
         layout = new LinearLayout(this);
-        layout.setBackgroundColor(0x88ff0000);
+        layout.setBackgroundColor(0x00ff0000);
         WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
 
         Point size = new Point();
