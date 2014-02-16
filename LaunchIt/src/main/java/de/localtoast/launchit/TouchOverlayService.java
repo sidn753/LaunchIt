@@ -30,7 +30,7 @@ import android.widget.LinearLayout;
 /**
  * Created by Arne Augenstein on 2/15/14.
  */
-public class TouchOverlay extends Service {
+public class TouchOverlayService extends Service {
     LinearLayout layout;
 
     @Override
@@ -54,9 +54,7 @@ public class TouchOverlay extends Service {
         layout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                Intent mainIntent = new Intent(TouchOverlay.this, MainActivity.class);
-                mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                getApplication().startActivity(mainIntent);
+                startService(new Intent(TouchOverlayService.this, AppListService.class));
                 return true;
             }
         });
