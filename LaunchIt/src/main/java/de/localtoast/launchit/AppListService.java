@@ -62,4 +62,11 @@ public class AppListService extends Service {
             wm.removeView(listView);
         }
     }
+
+    public void startApp(String packageName) {
+        Intent intent = getPackageManager().getLaunchIntentForPackage(packageName);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        stopSelf();
+    }
 }

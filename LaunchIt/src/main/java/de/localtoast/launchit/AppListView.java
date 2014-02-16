@@ -18,7 +18,10 @@
 
 package de.localtoast.launchit;
 
+import android.app.ActivityManager;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -39,35 +42,38 @@ public class AppListView extends ListView {
     public AppListView(final AppListService appListService) {
         super(appListService);
         this.appListService = appListService;
-        setBackgroundColor(0xDD052C63);
+        setBackgroundColor(0xEE043863);
 
-        String[] values =
-            new String[]{"Android", "iPhone", "WindowsMobile", "Blackberry", "WebOS", "Ubuntu",
-                "Windows7", "Max OS X", "Linux", "OS/2", "Ubuntu", "Windows7", "Max OS X", "Linux",
-                "OS/2", "Ubuntu", "Windows7", "Max OS X", "Linux", "OS/2", "Android", "iPhone",
-                "WindowsMobile"};
+        ActivityManager actManager =
+            (ActivityManager) appListService.getSystemService(Context.ACTIVITY_SERVICE);
 
-        final ArrayList<String> list = new ArrayList<String>();
-        for (int i = 0; i < values.length; ++i) {
-            list.add(values[i]);
+        List<ActivityManager.RunningAppProcessInfo> runningProcesses =
+            actManager.getRunningAppProcesses();
+
+        PackageManager packageManager = appListService.getPackageManager();
+
+        final ArrayList<AppListViewItem> list = new ArrayList<AppListViewItem>();
+        for (ActivityManager.RunningAppProcessInfo processInfo : runningProcesses) {
+            try {
+                String packageName = processInfo.processName;
+                ApplicationInfo applicationInfo = packageManager.getApplicationInfo(packageName, 0);
+                list.add(new AppListViewItem(
+                    packageManager.getApplicationLabel(applicationInfo).toString(), packageName));
+            } catch (PackageManager.NameNotFoundException e) {
+                // ignore the app
+            }
         }
-        final StableArrayAdapter adapter =
-            new StableArrayAdapter(appListService, android.R.layout.simple_list_item_1, list);
+
+        final AppArrayArrayAdapter adapter =
+            new AppArrayArrayAdapter(appListService, android.R.layout.simple_list_item_1, list);
         setAdapter(adapter);
 
         setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
-                final String item = (String) parent.getItemAtPosition(position);
-                view.animate().setDuration(2000).alpha(0).withEndAction(new Runnable() {
-                    @Override
-                    public void run() {
-                        list.remove(item);
-                        adapter.notifyDataSetChanged();
-                        view.setAlpha(1);
-                    }
-                });
+                AppListViewItem item = (AppListViewItem) parent.getItemAtPosition(position);
+                appListService.startApp(item.getPackageName());
             }
 
         });
@@ -83,11 +89,12 @@ public class AppListView extends ListView {
         return super.dispatchTouchEvent(ev);
     }
 
-    private class StableArrayAdapter extends ArrayAdapter<String> {
+    private class AppArrayArrayAdapter extends ArrayAdapter<AppListViewItem> {
 
-        HashMap<String, Integer> mIdMap = new HashMap<String, Integer>();
+        HashMap<AppListViewItem, Integer> mIdMap = new HashMap<AppListViewItem, Integer>();
 
-        public StableArrayAdapter(Context context, int textViewResourceId, List<String> objects) {
+        public AppArrayArrayAdapter(Context context, int textViewResourceId,
+                                    List<AppListViewItem> objects) {
             super(context, textViewResourceId, objects);
             for (int i = 0; i < objects.size(); ++i) {
                 mIdMap.put(objects.get(i), i);
@@ -96,7 +103,7 @@ public class AppListView extends ListView {
 
         @Override
         public long getItemId(int position) {
-            String item = getItem(position);
+            AppListViewItem item = getItem(position);
             return mIdMap.get(item);
         }
 
