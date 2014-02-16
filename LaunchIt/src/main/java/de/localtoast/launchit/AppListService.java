@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.IBinder;
+import android.view.Gravity;
 import android.view.WindowManager;
 
 /**
@@ -31,7 +32,6 @@ import android.view.WindowManager;
 public class AppListService extends Service {
 
     @Override
-
     public IBinder onBind(Intent intent) {
         return null;
     }
@@ -39,14 +39,16 @@ public class AppListService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-
-        WindowManager.LayoutParams params =
-            new WindowManager.LayoutParams(600, 600, WindowManager.LayoutParams.TYPE_PHONE,
-                WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH |
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
         WindowManager wm =
             (WindowManager) getBaseContext().getSystemService(Context.WINDOW_SERVICE);
-        wm.addView(new AppListView(this), params);
+        WindowManager.LayoutParams params =
+            new WindowManager.LayoutParams(225, WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH |
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
+        params.gravity = Gravity.TOP | Gravity.RIGHT;
+        AppListView listView = new AppListView(this);
+        wm.addView(listView, params);
     }
 
     @Override

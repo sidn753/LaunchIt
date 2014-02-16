@@ -34,7 +34,7 @@ import java.util.List;
 public class AppListView extends ListView {
     public AppListView(Context context) {
         super(context);
-        setBackgroundColor(0x88ff0000);
+        setBackgroundColor(0xBB166AA6);
 
         String[] values =
             new String[]{"Android", "iPhone", "WindowsMobile", "Blackberry", "WebOS", "Ubuntu",
