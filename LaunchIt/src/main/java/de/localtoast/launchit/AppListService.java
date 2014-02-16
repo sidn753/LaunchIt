@@ -30,6 +30,7 @@ import android.view.WindowManager;
  * Created by Arne Augenstein on 2/15/14.
  */
 public class AppListService extends Service {
+    private AppListView listView;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -47,7 +48,7 @@ public class AppListService extends Service {
                 WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH |
                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
         params.gravity = Gravity.TOP | Gravity.RIGHT;
-        AppListView listView = new AppListView(this);
+        listView = new AppListView(this);
         wm.addView(listView, params);
     }
 
@@ -55,9 +56,10 @@ public class AppListService extends Service {
     public void onDestroy() {
         super.onDestroy();
 
-        // TODO brauche ich das noch?
-        //        if (view != null) {
-        //            view.destroy();
-        //        }
+        if (listView != null) {
+            WindowManager wm =
+                (WindowManager) getBaseContext().getSystemService(Context.WINDOW_SERVICE);
+            wm.removeView(listView);
+        }
     }
 }

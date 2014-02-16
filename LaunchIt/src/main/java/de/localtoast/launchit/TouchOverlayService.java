@@ -53,8 +53,7 @@ public class TouchOverlayService extends Service {
 
         WindowManager.LayoutParams params =
             new WindowManager.LayoutParams(30, size.y / 2, WindowManager.LayoutParams.TYPE_PHONE,
-                WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH |
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
         params.gravity = Gravity.BOTTOM | Gravity.RIGHT;
 
         wm.addView(layout, params);

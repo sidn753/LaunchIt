@@ -19,6 +19,7 @@
 package de.localtoast.launchit;
 
 import android.content.Context;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -32,9 +33,13 @@ import java.util.List;
  * Created by Arne Augenstein on 2/16/14.
  */
 public class AppListView extends ListView {
-    public AppListView(Context context) {
-        super(context);
-        setBackgroundColor(0xBB166AA6);
+
+    private AppListService appListService;
+
+    public AppListView(final AppListService appListService) {
+        super(appListService);
+        this.appListService = appListService;
+        setBackgroundColor(0xDD052C63);
 
         String[] values =
             new String[]{"Android", "iPhone", "WindowsMobile", "Blackberry", "WebOS", "Ubuntu",
@@ -47,7 +52,7 @@ public class AppListView extends ListView {
             list.add(values[i]);
         }
         final StableArrayAdapter adapter =
-            new StableArrayAdapter(context, android.R.layout.simple_list_item_1, list);
+            new StableArrayAdapter(appListService, android.R.layout.simple_list_item_1, list);
         setAdapter(adapter);
 
         setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -66,7 +71,16 @@ public class AppListView extends ListView {
             }
 
         });
+    }
 
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        float rawx = ev.getRawX();
+        if (rawx == 0) {
+            appListService.stopSelf();
+        }
+
+        return super.dispatchTouchEvent(ev);
     }
 
     private class StableArrayAdapter extends ArrayAdapter<String> {
@@ -92,4 +106,5 @@ public class AppListView extends ListView {
         }
 
     }
+
 }
