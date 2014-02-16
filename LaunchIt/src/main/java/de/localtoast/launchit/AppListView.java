@@ -47,15 +47,14 @@ public class AppListView extends ListView {
         ActivityManager actManager =
             (ActivityManager) appListService.getSystemService(Context.ACTIVITY_SERVICE);
 
-        List<ActivityManager.RunningAppProcessInfo> runningProcesses =
-            actManager.getRunningAppProcesses();
+        List<ActivityManager.RunningTaskInfo> runningTasks = actManager.getRunningTasks(50);
 
         PackageManager packageManager = appListService.getPackageManager();
 
         final ArrayList<AppListViewItem> list = new ArrayList<AppListViewItem>();
-        for (ActivityManager.RunningAppProcessInfo processInfo : runningProcesses) {
+        for (ActivityManager.RunningTaskInfo taskInfo : runningTasks) {
             try {
-                String packageName = processInfo.processName;
+                String packageName = taskInfo.topActivity.getPackageName();
                 ApplicationInfo applicationInfo = packageManager.getApplicationInfo(packageName, 0);
                 list.add(new AppListViewItem(
                     packageManager.getApplicationLabel(applicationInfo).toString(), packageName));
