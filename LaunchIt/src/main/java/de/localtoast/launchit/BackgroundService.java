@@ -35,10 +35,9 @@ import java.util.TimerTask;
 /**
  * Created by Arne Augenstein on 2/15/14.
  */
-public class TouchOverlayService extends Service {
+public class BackgroundService extends Service {
     private LinearLayout layout;
 
-    // TODO rename service? touchoverlay isn't correct any more
     private static Timer timer = new Timer();
 
     @Override
@@ -67,14 +66,14 @@ public class TouchOverlayService extends Service {
         layout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                Intent intent = new Intent(TouchOverlayService.this, AppListService.class);
+                Intent intent = new Intent(BackgroundService.this, AppListService.class);
                 startService(intent);
 
                 return true;
             }
         });
 
-        timer.scheduleAtFixedRate(new AppListUpdater(), 0, 10000);
+        timer.scheduleAtFixedRate(new AppListUpdater(), 0, 60000);
     }
 
     @Override
@@ -90,7 +89,7 @@ public class TouchOverlayService extends Service {
         private AppListHelper appListHelper;
 
         public AppListUpdater() {
-            appListHelper = new AppListHelper(TouchOverlayService.this);
+            appListHelper = new AppListHelper(BackgroundService.this);
         }
 
         @Override
