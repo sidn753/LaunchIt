@@ -16,7 +16,9 @@
  * along with Launch It!.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.localtoast.launchit;
+package de.localtoast.launchit.applistview;
+
+import android.graphics.drawable.Drawable;
 
 /**
  * Created by Arne Augenstein on 2/16/14.
@@ -24,11 +26,12 @@ package de.localtoast.launchit;
 public class AppListViewItem {
     private String appName;
     private String packageName;
+    private Drawable appIcon;
 
-    public AppListViewItem(String appName, String packageName) {
+    public AppListViewItem(String appName, String packageName, Drawable appIcon) {
+        this.appIcon = appIcon;
         this.appName = appName == null ? "" : appName;
         this.packageName = packageName == null ? "" : packageName;
-
     }
 
     @Override
@@ -56,5 +59,9 @@ public class AppListViewItem {
 
     public String getPackageName() {
         return packageName;
+    }
+
+    public Drawable getAppIcon() {
+        return appIcon;
     }
 }

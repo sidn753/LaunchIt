@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import de.localtoast.launchit.applistview.AppListViewItem;
 import de.localtoast.launchit.db.SQLiteHelper;
 
 /**
@@ -87,7 +88,8 @@ public class AppListHelper {
             try {
                 ApplicationInfo applicationInfo = packageManager.getApplicationInfo(packageName, 0);
                 list.add(new AppListViewItem(
-                    packageManager.getApplicationLabel(applicationInfo).toString(), packageName));
+                    packageManager.getApplicationLabel(applicationInfo).toString(), packageName,
+                    packageManager.getApplicationIcon(packageName)));
             } catch (PackageManager.NameNotFoundException e) {
                 // ignore the app
             }

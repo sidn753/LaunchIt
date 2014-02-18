@@ -26,6 +26,7 @@ import android.os.IBinder;
 import android.view.Gravity;
 import android.view.WindowManager;
 
+import de.localtoast.launchit.applistview.AppListView;
 import de.localtoast.launchit.db.SQLiteHelper;
 
 /**

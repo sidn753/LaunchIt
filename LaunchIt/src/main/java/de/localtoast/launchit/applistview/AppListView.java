@@ -16,7 +16,7 @@
  * along with Launch It!.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package de.localtoast.launchit;
+package de.localtoast.launchit.applistview;
 
 import android.content.Context;
 import android.view.MotionEvent;
@@ -29,6 +29,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import de.localtoast.launchit.AppListHelper;
+import de.localtoast.launchit.AppListService;
+
 /**
  * Created by Arne Augenstein on 2/16/14.
  */
@@ -39,12 +42,10 @@ public class AppListView extends ListView {
     public AppListView(final AppListService appListService) {
         super(appListService);
         this.appListService = appListService;
-        setBackgroundColor(0xEE043863);
+        setBackgroundColor(0xDD000A30);
 
         final ArrayList<AppListViewItem> list = AppListHelper.getAppList(appListService);
-
-        final AppArrayArrayAdapter adapter =
-            new AppArrayArrayAdapter(appListService, android.R.layout.simple_list_item_1, list);
+        final AppsArrayAdapter adapter = new AppsArrayAdapter(appListService, list);
         setAdapter(adapter);
 
         setOnItemClickListener(new AdapterView.OnItemClickListener() {
