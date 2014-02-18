@@ -19,7 +19,6 @@
 package de.localtoast.launchit.applistview;
 
 import android.content.Context;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -59,16 +58,6 @@ public class AppListView extends ListView {
         });
     }
 
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-        float rawx = ev.getRawX();
-        if (rawx == 0) {
-            appListService.stopSelf();
-        }
-
-        return super.dispatchTouchEvent(ev);
-    }
-
     private class AppArrayArrayAdapter extends ArrayAdapter<AppListViewItem> {
 
         HashMap<AppListViewItem, Integer> mIdMap = new HashMap<AppListViewItem, Integer>();
@@ -91,7 +80,5 @@ public class AppListView extends ListView {
         public boolean hasStableIds() {
             return true;
         }
-
     }
-
 }
