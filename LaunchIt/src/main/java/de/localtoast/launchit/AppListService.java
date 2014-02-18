@@ -26,6 +26,8 @@ import android.os.IBinder;
 import android.view.Gravity;
 import android.view.WindowManager;
 
+import de.localtoast.launchit.db.SQLiteHelper;
+
 /**
  * Created by Arne Augenstein on 2/15/14.
  */
@@ -67,6 +69,7 @@ public class AppListService extends Service {
         Intent intent = getPackageManager().getLaunchIntentForPackage(packageName);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
+        new SQLiteHelper(this).incrementLaunchCounter(packageName);
         stopSelf();
     }
 }

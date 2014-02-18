@@ -18,10 +18,7 @@
 
 package de.localtoast.launchit;
 
-import android.app.ActivityManager;
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -44,24 +41,7 @@ public class AppListView extends ListView {
         this.appListService = appListService;
         setBackgroundColor(0xEE043863);
 
-        ActivityManager actManager =
-            (ActivityManager) appListService.getSystemService(Context.ACTIVITY_SERVICE);
-
-        List<ActivityManager.RunningTaskInfo> runningTasks = actManager.getRunningTasks(50);
-
-        PackageManager packageManager = appListService.getPackageManager();
-
-        final ArrayList<AppListViewItem> list = new ArrayList<AppListViewItem>();
-        for (ActivityManager.RunningTaskInfo taskInfo : runningTasks) {
-            try {
-                String packageName = taskInfo.topActivity.getPackageName();
-                ApplicationInfo applicationInfo = packageManager.getApplicationInfo(packageName, 0);
-                list.add(new AppListViewItem(
-                    packageManager.getApplicationLabel(applicationInfo).toString(), packageName));
-            } catch (PackageManager.NameNotFoundException e) {
-                // ignore the app
-            }
-        }
+        final ArrayList<AppListViewItem> list = AppListHelper.getAppList(appListService);
 
         final AppArrayArrayAdapter adapter =
             new AppArrayArrayAdapter(appListService, android.R.layout.simple_list_item_1, list);

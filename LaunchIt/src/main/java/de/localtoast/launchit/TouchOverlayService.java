@@ -29,11 +29,17 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 /**
  * Created by Arne Augenstein on 2/15/14.
  */
 public class TouchOverlayService extends Service {
     private LinearLayout layout;
+
+    // TODO rename service? touchoverlay isn't correct any more
+    private static Timer timer = new Timer();
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -67,6 +73,8 @@ public class TouchOverlayService extends Service {
                 return true;
             }
         });
+
+        timer.scheduleAtFixedRate(new AppListUpdater(), 0, 10000);
     }
 
     @Override
@@ -75,6 +83,19 @@ public class TouchOverlayService extends Service {
         if (layout != null) {
             WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
             wm.removeView(layout);
+        }
+    }
+
+    private class AppListUpdater extends TimerTask {
+        private AppListHelper appListHelper;
+
+        public AppListUpdater() {
+            appListHelper = new AppListHelper(TouchOverlayService.this);
+        }
+
+        @Override
+        public void run() {
+            appListHelper.updateRunningTasks();
         }
     }
 }

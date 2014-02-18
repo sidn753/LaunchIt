@@ -24,6 +24,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Arne Augenstein on 2/17/14.
  */
@@ -62,18 +65,35 @@ public class SQLiteHelper extends SQLiteOpenHelper {
     public int getLaunchCounter(String appPackageName) {
         SQLiteDatabase db = getReadableDatabase();
 
-        Cursor cursor =
-            db.query(TABLE_APPS, new String[]{APPS_LAUNCH_COUNT}, " " + APPS_PACKAGE_NAME + " ?",
-                new String[]{APPS_PACKAGE_NAME}, null, null, null, null);
+        Cursor cursor = db.rawQuery("select " + APPS_LAUNCH_COUNT + " from " + TABLE_APPS +
+            " where " + APPS_PACKAGE_NAME + " = ?", new String[]{appPackageName});
 
-        if (cursor != null) {
-            cursor.moveToFirst();
+        if (cursor.moveToFirst()) {
 
             // TODO error handling for more than one result
+            // TODO crash here
             return cursor.getInt(0);
         }
 
         return 0;
+    }
+
+    /**
+     * @return the complete list of apps, sorted by launch count.
+     */
+    public List<String> getAllApps() {
+        List<String> apps = new ArrayList<String>();
+        String query = "select " + APPS_PACKAGE_NAME + " from " + TABLE_APPS + " order by " +
+            APPS_LAUNCH_COUNT + " desc";
+
+        SQLiteDatabase db = getWritableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        while (cursor.moveToNext()) {
+            apps.add(cursor.getString(0));
+        }
+
+        return apps;
     }
 
     public void incrementLaunchCounter(String appPackageName) {
