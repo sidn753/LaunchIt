@@ -61,18 +61,22 @@ public class AppListHelper {
             }
         }
 
+        SQLiteHelper dbHelper = new SQLiteHelper(context);
+        Set<String> newTasks = new HashSet<String>(currentTasks);
+
         if (!recentlyRunningTasks.isEmpty()) {
-            /*
-             * We don't want to increment the counters for apps, which are already running. Every
-             * restart of our app would increment the counters, otherwise.
+            newTasks.removeAll(recentlyRunningTasks);
+        } else {
+            /**
+             * Launch it! has just recently been started and we don't have a list of the currently
+             * running apps yet. So let's get the apps, we already know of from the database and
+             * compare them with the running ones.
              */
-            Set<String> newTasks = new HashSet<String>(currentTasks);
-            if (newTasks.removeAll(recentlyRunningTasks)) {
-                for (String newTask : newTasks) {
-                    SQLiteHelper dbHelper = new SQLiteHelper(context);
-                    dbHelper.incrementLaunchCounter(newTask);
-                }
-            }
+            newTasks.removeAll(dbHelper.getAllApps());
+        }
+
+        for (String newTask : newTasks) {
+            dbHelper.incrementLaunchCounter(newTask);
         }
 
         recentlyRunningTasks = new HashSet<String>(currentTasks);
