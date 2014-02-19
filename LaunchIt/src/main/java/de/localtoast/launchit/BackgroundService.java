@@ -23,7 +23,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -210,7 +212,14 @@ public class BackgroundService extends Service {
         public void run() {
             appListHelper.updateRunningTasks();
             if (appListView != null) {
-                appListView.update();
+                // The following action has to be run from the GUI thread
+                Handler handler = new Handler(Looper.getMainLooper());
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        appListView.update();
+                    }
+                });
             }
         }
 
