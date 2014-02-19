@@ -101,4 +101,7 @@ public class AppListHelper {
         return list;
     }
 
+    public void addNewRunningApp(String packageName) {
+        recentlyRunningTasks.add(packageName);
+    }
 }

@@ -18,33 +18,26 @@
 
 package de.localtoast.launchit.applistview;
 
-import android.content.Context;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import de.localtoast.launchit.AppListHelper;
-import de.localtoast.launchit.AppListService;
+import de.localtoast.launchit.BackgroundService;
 
 /**
  * Created by Arne Augenstein on 2/16/14.
  */
 public class AppListView extends ListView {
 
-    private AppListService appListService;
+    private BackgroundService service;
+    private final AppsArrayAdapter adapter;
 
-    public AppListView(final AppListService appListService) {
-        super(appListService);
-        this.appListService = appListService;
+    public AppListView(final BackgroundService service) {
+        super(service);
+        this.service = service;
         setBackgroundColor(0xDD000A30);
 
-        final ArrayList<AppListViewItem> list = AppListHelper.getAppList(appListService);
-        final AppsArrayAdapter adapter = new AppsArrayAdapter(appListService, list);
+        adapter = new AppsArrayAdapter(service);
         setAdapter(adapter);
 
         setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -52,33 +45,13 @@ public class AppListView extends ListView {
             @Override
             public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
                 AppListViewItem item = (AppListViewItem) parent.getItemAtPosition(position);
-                appListService.startApp(item.getPackageName());
+                service.startApp(item.getPackageName());
             }
 
         });
     }
 
-    private class AppArrayArrayAdapter extends ArrayAdapter<AppListViewItem> {
-
-        HashMap<AppListViewItem, Integer> mIdMap = new HashMap<AppListViewItem, Integer>();
-
-        public AppArrayArrayAdapter(Context context, int textViewResourceId,
-                                    List<AppListViewItem> objects) {
-            super(context, textViewResourceId, objects);
-            for (int i = 0; i < objects.size(); ++i) {
-                mIdMap.put(objects.get(i), i);
-            }
-        }
-
-        @Override
-        public long getItemId(int position) {
-            AppListViewItem item = getItem(position);
-            return mIdMap.get(item);
-        }
-
-        @Override
-        public boolean hasStableIds() {
-            return true;
-        }
+    public void update() {
+        adapter.update();
     }
 }

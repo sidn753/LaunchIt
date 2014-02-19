@@ -22,23 +22,26 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
 
+import de.localtoast.launchit.AppListHelper;
 import de.localtoast.launchit.R;
 
 /**
  * Created by Arne Augenstein on 2/18/14.
  */
-public class AppsArrayAdapter extends ArrayAdapter<AppListViewItem> {
+// TODO array aus name raus
+public class AppsArrayAdapter extends BaseAdapter {
     private final Context context;
+    private final List<AppListViewItem> items;
 
-    public AppsArrayAdapter(Context context, List<AppListViewItem> items) {
-        super(context, R.layout.app_list_view_item, items.toArray(new AppListViewItem[]{}));
+    public AppsArrayAdapter(Context context) {
         this.context = context;
+        items = AppListHelper.getAppList(context);
     }
 
     @Override
@@ -50,11 +53,36 @@ public class AppsArrayAdapter extends ArrayAdapter<AppListViewItem> {
         TextView label = (TextView) row.findViewById(R.id.appListLabel);
         ImageView logo = (ImageView) row.findViewById(R.id.appListLogo);
 
-        AppListViewItem item = getItem(position);
+        AppListViewItem item = getAppListItem(position);
 
         label.setText(item.getAppName());
         logo.setImageDrawable(item.getAppIcon());
 
         return row;
+    }
+
+    public void update() {
+        items.clear();
+        items.addAll(AppListHelper.getAppList(context));
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public int getCount() {
+        return items.size();
+    }
+
+    private AppListViewItem getAppListItem(int position) {
+        return items.get(position);
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return items.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
     }
 }
