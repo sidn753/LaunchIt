@@ -18,6 +18,7 @@
 
 package de.localtoast.launchit.applistview;
 
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -55,4 +56,13 @@ public class AppListView extends ListView {
         adapter.update();
     }
 
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (event.getAction() == KeyEvent.ACTION_DOWN &&
+            event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+            service.switchToTouchArea();
+        }
+
+        return super.dispatchKeyEvent(event);
+    }
 }

@@ -77,7 +77,7 @@ public class BackgroundService extends Service {
 
     }
 
-    private void switchToTouchArea() {
+    public void switchToTouchArea() {
         /*
          * Only enter on first run (touchArea == null) or when the sidebar is visible.
          */
