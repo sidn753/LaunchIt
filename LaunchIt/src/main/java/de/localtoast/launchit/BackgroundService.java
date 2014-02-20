@@ -68,7 +68,13 @@ public class BackgroundService extends Service {
         super.onCreate();
         appListUpdater = new AppListUpdater();
         timer.scheduleAtFixedRate(appListUpdater, 0, 60000);
-        switchToTouchArea();
+
+        initSidebar();
+        initTouchArea();
+        WindowManager.LayoutParams params = getTouchAreaLayoutParams();
+        WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
+        wm.addView(touchArea, params);
+
     }
 
     private void switchToTouchArea() {
@@ -106,11 +112,26 @@ public class BackgroundService extends Service {
     }
 
     private void switchToTouchAreaPostAnimation() {
-        if (sidebar != null) {
-            WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
-            wm.removeView(sidebar);
-        }
+        WindowManager.LayoutParams params = getTouchAreaLayoutParams();
+        WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
+        wm.removeView(sidebar);
+        wm.addView(touchArea, params);
+    }
 
+    private WindowManager.LayoutParams getTouchAreaLayoutParams() {
+        WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
+        Point size = new Point();
+        wm.getDefaultDisplay().getSize(size);
+
+        WindowManager.LayoutParams params =
+            new WindowManager.LayoutParams(30, size.y / 2, WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
+        params.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+        return params;
+    }
+
+    private void initTouchArea() {
         if (touchArea == null) {
 
             touchArea = new LinearLayout(this);
@@ -123,47 +144,13 @@ public class BackgroundService extends Service {
                 }
             });
         }
-
-        WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
-
-        Point size = new Point();
-        wm.getDefaultDisplay().getSize(size);
-
-        WindowManager.LayoutParams params =
-            new WindowManager.LayoutParams(30, size.y / 2, WindowManager.LayoutParams.TYPE_PHONE,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
-        params.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-
-        wm.addView(touchArea, params);
     }
 
     private void switchToSidebar() {
         if (!sidebarVisible) {
             sidebarVisible = true;
-            if (touchArea != null) {
-                WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
-                wm.removeView(touchArea);
-            }
 
             Context context = getBaseContext();
-            if (sidebar == null) {
-                sidebar = new FrameLayout(context);
-                appListView = new AppListView(this);
-                sidebar.addView(appListView);
-                sidebar.setOnTouchListener(new View.OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
-                        /*
-                         * Close the app list, when element outside of list is touched.
-                         */
-                        if (sidebarVisible) {
-                            switchToTouchArea();
-                        }
-                        return false;
-                    }
-                });
-            }
 
             WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
             WindowManager.LayoutParams params =
@@ -173,12 +160,34 @@ public class BackgroundService extends Service {
                         WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
             params.gravity = Gravity.TOP | Gravity.RIGHT;
 
+            wm.removeView(touchArea);
             wm.addView(sidebar, params);
             // TODO move this animation stuff in some sort of gui class or directly to the view
             Animation animation = AnimationUtils.loadAnimation(context, R.anim.slide_in_right);
             animation.setDuration(FADING_DURATION_MS);
             appListView.startAnimation(animation);
             appListView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void initSidebar() {
+        if (sidebar == null) {
+            Context context = getBaseContext();
+            sidebar = new FrameLayout(context);
+            appListView = new AppListView(this);
+            sidebar.addView(appListView);
+            sidebar.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    /*
+                     * Close the app list, when element outside of list is touched.
+                     */
+                    if (sidebarVisible) {
+                        switchToTouchArea();
+                    }
+                    return false;
+                }
+            });
         }
     }
 
@@ -196,9 +205,12 @@ public class BackgroundService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (touchArea != null) {
+        if (touchArea != null && !sidebarVisible) {
             WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
             wm.removeView(touchArea);
+        } else if (sidebar != null && sidebarVisible) {
+            WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
+            wm.removeView(sidebar);
         }
     }
 

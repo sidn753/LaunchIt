@@ -54,4 +54,5 @@ public class AppListView extends ListView {
     public void update() {
         adapter.update();
     }
+
 }
