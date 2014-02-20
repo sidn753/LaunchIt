@@ -131,7 +131,8 @@ public class BackgroundService extends Service {
 
         WindowManager.LayoutParams params =
             new WindowManager.LayoutParams(30, size.y / 2, WindowManager.LayoutParams.TYPE_PHONE,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
         params.gravity = Gravity.BOTTOM | Gravity.RIGHT;
 
         wm.addView(touchArea, params);
