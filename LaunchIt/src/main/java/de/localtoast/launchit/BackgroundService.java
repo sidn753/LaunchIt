@@ -35,6 +35,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -193,13 +194,19 @@ public class BackgroundService extends Service {
 
     public void startApp(String packageName) {
         Intent intent = getPackageManager().getLaunchIntentForPackage(packageName);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-        new SQLiteHelper(this).incrementLaunchCounter(packageName);
-        appListUpdater.addNewRunningApp(packageName);
-        appListView.update();
 
-        switchToTouchArea();
+        if (intent == null) {
+            Toast toast = Toast.makeText(getBaseContext(),
+                "Launch it! does not have the permission to launch this app", Toast.LENGTH_SHORT);
+            toast.show();
+        } else {
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            new SQLiteHelper(this).incrementLaunchCounter(packageName);
+            appListUpdater.addNewRunningApp(packageName);
+            appListView.update();
+            switchToTouchArea();
+        }
     }
 
     @Override
