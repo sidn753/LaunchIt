@@ -25,7 +25,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
+import de.localtoast.launchit.AppMetaData;
 
 /**
  * Created by Arne Augenstein on 2/17/14.
@@ -39,7 +42,8 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 
     private static final String APPS_KEY_ID = "id";
     private static final String APPS_PACKAGE_NAME = "packageName";
-    private static final String APPS_LAUNCH_COUNT = "launchCount";
+    private static final String APPS_PRIORITY_COUNTER = "priorityCounter";
+    private static final String APPS_LAST_INCREMENT = "lastIncrement";
 
     private static final int DATABASE_VERSION = 1;
 
@@ -52,7 +56,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 
         String createAppTable = "create table " + TABLE_APPS + " (" + APPS_KEY_ID +
             " integer primary key autoincrement, " + APPS_PACKAGE_NAME + " text, " +
-            APPS_LAUNCH_COUNT + " integer)";
+            APPS_PRIORITYLAUNCH_COUNT + " integer, " + APPS_LAST_INCREMENT + " integer)";
 
         db.execSQL(createAppTable);
     }
@@ -62,10 +66,10 @@ public class SQLiteHelper extends SQLiteOpenHelper {
         // TODO proper update handling
     }
 
-    public int getLaunchCounter(String appPackageName) {
+    public int getPriorityCounter(String appPackageName) {
         SQLiteDatabase db = getReadableDatabase();
 
-        Cursor cursor = db.rawQuery("select " + APPS_LAUNCH_COUNT + " from " + TABLE_APPS +
+        Cursor cursor = db.rawQuery("select " + APPS_PRIORITY_COUNTER + " from " + TABLE_APPS +
             " where " + APPS_PACKAGE_NAME + " = ?", new String[]{appPackageName});
 
         if (cursor.moveToFirst()) {
@@ -81,36 +85,32 @@ public class SQLiteHelper extends SQLiteOpenHelper {
     /**
      * @return the complete list of apps, sorted by launch count.
      */
-    public List<String> getAllApps() {
-        List<String> apps = new ArrayList<String>();
-        String query = "select " + APPS_PACKAGE_NAME + " from " + TABLE_APPS + " order by " +
-            APPS_LAUNCH_COUNT + " desc";
+    public List<AppMetaData> getAllApps() {
+        String query = "select " + APPS_PACKAGE_NAME + ", " + APPS_PRIORITY_COUNTER + ", " +
+            APPS_LAST_INCREMENT + " from " + TABLE_APPS;
 
         SQLiteDatabase db = getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
 
+        List<AppMetaData> apps = new ArrayList<AppMetaData>();
         while (cursor.moveToNext()) {
-            apps.add(cursor.getString(0));
+            Date lastIncrement = new Date(cursor.getInt(2));
+            apps.add(new AppMetaData(cursor.getString(0), lastIncrement, cursor.getInt(1)));
         }
 
         return apps;
     }
 
-    public void incrementLaunchCounter(String appPackageName) {
-        int launchCounter = getLaunchCounter(appPackageName);
-        if (launchCounter == 0) {
-            addApp(appPackageName);
-        } else {
-            SQLiteDatabase db = getWritableDatabase();
+    public void setPriorityCounter(String appPackageName, int counter) {
+        SQLiteDatabase db = getWritableDatabase();
 
-            ContentValues values = new ContentValues();
-            values.put(APPS_PACKAGE_NAME, appPackageName);
-            values.put(APPS_LAUNCH_COUNT, launchCounter + 1);
+        ContentValues values = new ContentValues();
+        values.put(APPS_PACKAGE_NAME, appPackageName);
+        values.put(APPS_PRIORITY_COUNTER, counter);
 
-            db.update(TABLE_APPS, values, APPS_PACKAGE_NAME + " = ?", new String[]{appPackageName});
+        db.update(TABLE_APPS, values, APPS_PACKAGE_NAME + " = ?", new String[]{appPackageName});
 
-            db.close();
-        }
+        db.close();
     }
 
     private void addApp(String appPackageName) {
@@ -118,7 +118,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 
         ContentValues values = new ContentValues();
         values.put(APPS_PACKAGE_NAME, appPackageName);
-        values.put(APPS_LAUNCH_COUNT, 1);
+        values.put(APPS_PRIORITY_COUNTER, 1);
 
         db.insert(TABLE_APPS, null, values);
 

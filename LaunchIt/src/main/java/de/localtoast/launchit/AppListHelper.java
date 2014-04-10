@@ -36,7 +36,9 @@ import de.localtoast.launchit.db.SQLiteHelper;
  * Created by Arne Augenstein on 2/17/14.
  */
 public class AppListHelper {
-    ActivityManager actManager;
+    protected ActivityManager actManager;
+
+    private static final PRIORITY_DECREASING_DELAY=5;
 
     private Set<String> recentlyRunningTasks = new HashSet<String>();
     private Context context;
@@ -83,13 +85,14 @@ public class AppListHelper {
     }
 
     // TODO leave it as static? move this method to other class?
-    public static ArrayList<AppListViewItem> getAppList(Context context) {
-        final ArrayList<AppListViewItem> list = new ArrayList<AppListViewItem>();
+    public static ArrayList<AppMetaData> getAppList(Context context) {
+        final ArrayList<AppMetaData> list = new ArrayList<AppMetaData>();
 
-        List<String> apps = new SQLiteHelper(context).getAllApps();
+        List<AppMetaData> apps = new SQLiteHelper(context).getAllApps();
         PackageManager packageManager = context.getPackageManager();
-        for (String packageName : apps) {
+        for (AppMetaData app : apps) {
             try {
+                // TODO sort with decreasing level in mind
                 ApplicationInfo applicationInfo = packageManager.getApplicationInfo(packageName, 0);
                 list.add(new AppListViewItem(
                     packageManager.getApplicationLabel(applicationInfo).toString(), packageName,
