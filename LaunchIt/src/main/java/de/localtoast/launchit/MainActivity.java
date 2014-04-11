@@ -18,11 +18,18 @@
 
 package de.localtoast.launchit;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import de.localtoast.launchit.preferences.SettingsActivity;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -39,7 +46,32 @@ public class MainActivity extends ActionBarActivity {
         //        }
 
         toggleOverlayService();
+
+        addNotificationIcon();
+
         finish();
+    }
+
+    private void addNotificationIcon() {
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
+            .setSmallIcon(R.drawable.abc_ab_bottom_solid_dark_holo)
+            .setContentTitle("Launch it! Background Service")
+            .setContentText("Launch it! Background Service").setOngoing(true);
+
+        Intent resultIntent = new Intent(this, SettingsActivity.class);
+
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        // Adds the back stack for the Intent (but not the Intent itself)
+        stackBuilder.addParentStack(SettingsActivity.class);
+        // Adds the Intent that starts the Activity to the top of the stack
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent =
+            stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        mBuilder.setContentIntent(resultPendingIntent);
+        NotificationManager mNotificationManager =
+            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        mNotificationManager.notify(1, mBuilder.build());
     }
 
     private void toggleOverlayService() {

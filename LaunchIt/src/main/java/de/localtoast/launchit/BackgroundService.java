@@ -26,6 +26,7 @@ import android.graphics.Point;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.RemoteException;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -42,11 +43,13 @@ import java.util.TimerTask;
 
 import de.localtoast.launchit.applistview.AppListView;
 import de.localtoast.launchit.db.SQLiteHelper;
+import de.localtoast.launchit.preferences.Settings;
 
 /**
  * Created by Arne Augenstein on 2/15/14.
  */
 public class BackgroundService extends Service {
+
     private static final int FADING_DURATION_MS = 280;
 
     private Timer timer = new Timer();
@@ -57,11 +60,35 @@ public class BackgroundService extends Service {
 
     boolean sidebarVisible = false;
 
+    int touchAreaColor = 0x00000000;
+
     private AppListView appListView;
+
+    private final BackgroundServiceInterface.Stub binder = new BackgroundServiceInterface.Stub() {
+        // TODO make normal class from this inner class
+
+        @Override
+        public void makeTouchAreaInvisible() throws RemoteException {
+            touchAreaColor = 0x00000000;
+            switchToTouchAreaPostAnimation();
+        }
+
+        @Override
+        public void makeTouchAreaVisible() throws RemoteException {
+            touchAreaColor = 0xffffffff;
+            switchToTouchAreaPostAnimation();
+            // TODO in this state the touch area must not be allowed to receive clicks
+        }
+
+        @Override
+        public void resizeTouchArea() throws RemoteException {
+            switchToTouchAreaPostAnimation();
+        }
+    };
 
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return binder;
     }
 
     @Override
@@ -75,7 +102,6 @@ public class BackgroundService extends Service {
         WindowManager.LayoutParams params = getTouchAreaLayoutParams();
         WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         wm.addView(touchArea, params);
-
     }
 
     public void switchToTouchArea() {
@@ -124,11 +150,19 @@ public class BackgroundService extends Service {
         Point size = new Point();
         wm.getDefaultDisplay().getSize(size);
 
+        Settings settings = new Settings(getBaseContext());
         WindowManager.LayoutParams params =
-            new WindowManager.LayoutParams(30, size.y / 2, WindowManager.LayoutParams.TYPE_PHONE,
+            new WindowManager.LayoutParams(settings.getTouchAreaWidth(),
+                settings.getTouchAreaHeight(), WindowManager.LayoutParams.TYPE_PHONE,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
-        params.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT
+            );
+
+        int horizontalPos = Gravity.RIGHT;
+        if (settings.isTouchAreaPositionLeftEdge()) {
+            horizontalPos = Gravity.LEFT;
+        }
+        params.gravity = Gravity.TOP | horizontalPos;
         return params;
     }
 
@@ -158,7 +192,8 @@ public class BackgroundService extends Service {
                 new WindowManager.LayoutParams(225, WindowManager.LayoutParams.MATCH_PARENT,
                     WindowManager.LayoutParams.TYPE_PHONE,
                     WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH |
-                        WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT
+                );
             params.gravity = Gravity.TOP | Gravity.RIGHT;
 
             wm.removeView(touchArea);
@@ -247,4 +282,5 @@ public class BackgroundService extends Service {
             appListHelper.addNewRunningApp(packageName);
         }
     }
+
 }
