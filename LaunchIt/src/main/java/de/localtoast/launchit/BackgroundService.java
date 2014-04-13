@@ -70,19 +70,19 @@ public class BackgroundService extends Service {
         @Override
         public void makeTouchAreaInvisible() throws RemoteException {
             touchAreaColor = 0x00000000;
-            switchToTouchAreaPostAnimation();
+            refreshTouchArea();
         }
 
         @Override
         public void makeTouchAreaVisible() throws RemoteException {
             touchAreaColor = 0xffffffff;
-            switchToTouchAreaPostAnimation();
+            refreshTouchArea();
             // TODO in this state the touch area must not be allowed to receive clicks
         }
 
         @Override
         public void resizeTouchArea() throws RemoteException {
-            switchToTouchAreaPostAnimation();
+            refreshTouchArea();
         }
     };
 
@@ -142,6 +142,13 @@ public class BackgroundService extends Service {
         WindowManager.LayoutParams params = getTouchAreaLayoutParams();
         WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         wm.removeView(sidebar);
+        wm.addView(touchArea, params);
+    }
+
+    private void refreshTouchArea() {
+        WindowManager.LayoutParams params = getTouchAreaLayoutParams();
+        WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
+        wm.removeView(touchArea);
         wm.addView(touchArea, params);
     }
 

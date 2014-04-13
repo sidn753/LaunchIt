@@ -33,9 +33,32 @@ import de.localtoast.launchit.BackgroundServiceInterface;
 import de.localtoast.launchit.R;
 
 public class SettingsActivity extends Activity
-
-    implements SharedPreferences.OnSharedPreferenceChangeListener {
+     {
     BackgroundServiceInterface serviceInterface;
+
+    SharedPreferences.OnSharedPreferenceChangeListener preferenceListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+
+
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+            s = "test";
+//            if (key.equals(getString(R.string.prefKey_touchAreaHeight)) ||
+//                key.equals(getString(R.string.prefKey_touchAreaWidth)) ||
+//                key.equals(getString(R.string.prefKey_touchAreaVerticalPosition)) ||
+//                key.equals(getString(R.string.prefKey_touchAreaHorizontalPosition))) {
+//
+//                if (serviceInterface != null) {
+//                    try {
+//                        serviceInterface.resizeTouchArea();
+//                    } catch (RemoteException e) {
+//                        // ignore this error
+//                    }
+//                }
+//            }
+        }
+    };
+
+
     protected ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
@@ -68,28 +91,11 @@ public class SettingsActivity extends Activity
         }
     }
 
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(getString(R.string.prefKey_touchAreaHeight)) ||
-            key.equals(getString(R.string.prefKey_touchAreaWidth)) ||
-            key.equals(getString(R.string.prefKey_touchAreaVerticalPosition)) ||
-            key.equals(getString(R.string.prefKey_touchAreaHorizontalPosition))) {
 
-            if (serviceInterface != null) {
-                try {
-                    serviceInterface.resizeTouchArea();
-                } catch (RemoteException e) {
-                    // ignore this error
-                }
-            }
-        }
-
-    }
 
     @Override
     protected void onDestroy() {
         if (serviceInterface != null)
-
         {
             try {
                 serviceInterface.makeTouchAreaInvisible();

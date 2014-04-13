@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/LaunchIt.iml" filepath="$PROJECT_DIR$/LaunchIt.iml" />
-      <module fileurl="file:///mnt/systemStuff/home/arne/mystuff/devel/android/LaunchIt/LaunchIt/LaunchIt-LaunchIt.iml" filepath="/mnt/systemStuff/home/arne/mystuff/devel/android/LaunchIt/LaunchIt/LaunchIt-LaunchIt.iml" />
+      <module fileurl="file://$PROJECT_DIR$/LaunchIt/LaunchIt.iml" filepath="$PROJECT_DIR$/LaunchIt/LaunchIt.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Launchit.iml" filepath="$PROJECT_DIR$/Launchit.iml" />
     </modules>
   </component>
 </project>
