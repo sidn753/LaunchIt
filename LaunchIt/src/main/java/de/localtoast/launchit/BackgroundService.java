@@ -60,6 +60,7 @@ public class BackgroundService extends Service {
     boolean sidebarVisible = false;
 
     int touchAreaColor = 0x00000000;
+    int receiveTouchEvents = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL;
 
     private AppListView appListView;
 
@@ -69,14 +70,15 @@ public class BackgroundService extends Service {
         @Override
         public void makeTouchAreaInvisible() throws RemoteException {
             touchAreaColor = 0x00000000;
+            receiveTouchEvents = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL;
             refreshTouchArea();
         }
 
         @Override
         public void makeTouchAreaVisible() throws RemoteException {
             touchAreaColor = 0x992DE397;
+            receiveTouchEvents = WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
             refreshTouchArea();
-            // TODO in this state the touch area must not be allowed to receive clicks
         }
 
         @Override
@@ -141,7 +143,12 @@ public class BackgroundService extends Service {
         WindowManager.LayoutParams params = getTouchAreaLayoutParams();
         WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         touchArea.setBackgroundColor(touchAreaColor);
-        wm.removeView(sidebar);
+        try {
+            wm.removeView(sidebar);
+            wm.removeView(touchArea);
+        } catch (IllegalArgumentException e) {
+            // if the view wasn't attached, we just continue
+        }
         wm.addView(touchArea, params);
     }
 
@@ -149,7 +156,11 @@ public class BackgroundService extends Service {
         WindowManager.LayoutParams params = getTouchAreaLayoutParams();
         WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         touchArea.setBackgroundColor(touchAreaColor);
-        wm.removeView(touchArea);
+        try {
+            wm.removeView(touchArea);
+        } catch (IllegalArgumentException e) {
+            // if the view wasn't attached, we just continue
+        }
         wm.addView(touchArea, params);
     }
 
@@ -158,8 +169,8 @@ public class BackgroundService extends Service {
         WindowManager.LayoutParams params =
             new WindowManager.LayoutParams(settings.getTouchAreaWidth(),
                 settings.getTouchAreaHeight(), WindowManager.LayoutParams.TYPE_PHONE,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT
+                receiveTouchEvents | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                PixelFormat.TRANSLUCENT
             );
 
         int horizontalPos = Gravity.RIGHT;
@@ -201,7 +212,11 @@ public class BackgroundService extends Service {
                 );
             params.gravity = Gravity.TOP | Gravity.RIGHT;
 
-            wm.removeView(touchArea);
+            try {
+                wm.removeView(touchArea);
+            } catch (IllegalArgumentException e) {
+                // if the view wasn't attached, we just continue
+            }
             wm.addView(sidebar, params);
             // TODO move this animation stuff in some sort of gui class or directly to the view
             Animation animation = AnimationUtils.loadAnimation(context, R.anim.slide_in_right);
@@ -254,10 +269,18 @@ public class BackgroundService extends Service {
         super.onDestroy();
         if (touchArea != null && !sidebarVisible) {
             WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
-            wm.removeView(touchArea);
+            try {
+                wm.removeView(touchArea);
+            } catch (IllegalArgumentException e) {
+                // if the view wasn't attached, we just continue
+            }
         } else if (sidebar != null && sidebarVisible) {
             WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
-            wm.removeView(sidebar);
+            try {
+                wm.removeView(sidebar);
+            } catch (IllegalArgumentException e) {
+                // if the view wasn't attached, we just continue
+            }
         }
     }
 

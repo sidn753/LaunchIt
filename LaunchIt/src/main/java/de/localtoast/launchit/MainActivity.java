@@ -54,9 +54,8 @@ public class MainActivity extends ActionBarActivity {
 
     private void addNotificationIcon() {
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
-            .setSmallIcon(R.drawable.abc_ab_bottom_solid_dark_holo)
-            .setContentTitle("Launch it! Background Service")
-            .setContentText("Launch it! Background Service").setOngoing(true);
+            .setSmallIcon(R.drawable.abc_ab_bottom_solid_dark_holo).setContentTitle("Launch it!")
+            .setContentText("Touch for preferences").setOngoing(true);
 
         Intent resultIntent = new Intent(this, SettingsActivity.class);
 

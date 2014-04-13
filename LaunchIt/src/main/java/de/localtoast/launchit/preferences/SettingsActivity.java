@@ -110,4 +110,10 @@ public class SettingsActivity extends Activity {
             }
         }
     }
+
+    @Override
+    protected void onDestroy() {
+        unbindService(serviceConnection);
+        super.onDestroy();
+    }
 }
