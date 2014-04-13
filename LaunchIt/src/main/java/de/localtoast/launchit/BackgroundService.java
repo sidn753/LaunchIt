@@ -22,7 +22,6 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
-import android.graphics.Point;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -65,7 +64,7 @@ public class BackgroundService extends Service {
     private AppListView appListView;
 
     private final BackgroundServiceInterface.Stub binder = new BackgroundServiceInterface.Stub() {
-        // TODO make normal class from this inner class
+        // TODO make normal class out of this inner class
 
         @Override
         public void makeTouchAreaInvisible() throws RemoteException {
@@ -75,7 +74,7 @@ public class BackgroundService extends Service {
 
         @Override
         public void makeTouchAreaVisible() throws RemoteException {
-            touchAreaColor = 0xffffffff;
+            touchAreaColor = 0x992DE397;
             refreshTouchArea();
             // TODO in this state the touch area must not be allowed to receive clicks
         }
@@ -141,6 +140,7 @@ public class BackgroundService extends Service {
     private void switchToTouchAreaPostAnimation() {
         WindowManager.LayoutParams params = getTouchAreaLayoutParams();
         WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
+        touchArea.setBackgroundColor(touchAreaColor);
         wm.removeView(sidebar);
         wm.addView(touchArea, params);
     }
@@ -148,15 +148,12 @@ public class BackgroundService extends Service {
     private void refreshTouchArea() {
         WindowManager.LayoutParams params = getTouchAreaLayoutParams();
         WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
+        touchArea.setBackgroundColor(touchAreaColor);
         wm.removeView(touchArea);
         wm.addView(touchArea, params);
     }
 
     private WindowManager.LayoutParams getTouchAreaLayoutParams() {
-        WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
-        Point size = new Point();
-        wm.getDefaultDisplay().getSize(size);
-
         Settings settings = new Settings(getBaseContext());
         WindowManager.LayoutParams params =
             new WindowManager.LayoutParams(settings.getTouchAreaWidth(),
@@ -170,6 +167,7 @@ public class BackgroundService extends Service {
             horizontalPos = Gravity.LEFT;
         }
         params.gravity = Gravity.TOP | horizontalPos;
+        params.y = settings.getTouchAreaHorizontalPosition();
         return params;
     }
 
@@ -177,7 +175,7 @@ public class BackgroundService extends Service {
         if (touchArea == null) {
 
             touchArea = new LinearLayout(this);
-            touchArea.setBackgroundColor(0x00ff0000);
+            touchArea.setBackgroundColor(touchAreaColor);
             touchArea.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {

@@ -36,6 +36,11 @@ public class Settings {
         settings = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
+    public void registerPreferenceListener(
+        SharedPreferences.OnSharedPreferenceChangeListener listener) {
+        settings.registerOnSharedPreferenceChangeListener(listener);
+    }
+
     public boolean isTouchAreaPositionLeftEdge() {
         return settings
             .getBoolean(context.getString(R.string.prefKey_touchAreaHorizontalPosition), false);
@@ -55,4 +60,5 @@ public class Settings {
         return Integer
             .valueOf(settings.getString(context.getString(R.string.prefKey_touchAreaWidth), "100"));
     }
+
 }

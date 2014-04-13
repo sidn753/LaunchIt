@@ -32,37 +32,39 @@ import de.localtoast.launchit.BackgroundService;
 import de.localtoast.launchit.BackgroundServiceInterface;
 import de.localtoast.launchit.R;
 
-public class SettingsActivity extends Activity
-     {
+public class SettingsActivity extends Activity {
     BackgroundServiceInterface serviceInterface;
 
-    SharedPreferences.OnSharedPreferenceChangeListener preferenceListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+    SharedPreferences.OnSharedPreferenceChangeListener preferenceListener =
+        new SharedPreferences.OnSharedPreferenceChangeListener() {
 
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                if (key.equals(getString(R.string.prefKey_touchAreaHeight)) ||
+                    key.equals(getString(R.string.prefKey_touchAreaWidth)) ||
+                    key.equals(getString(R.string.prefKey_touchAreaVerticalPosition)) ||
+                    key.equals(getString(R.string.prefKey_touchAreaHorizontalPosition))) {
 
-        @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-            s = "test";
-//            if (key.equals(getString(R.string.prefKey_touchAreaHeight)) ||
-//                key.equals(getString(R.string.prefKey_touchAreaWidth)) ||
-//                key.equals(getString(R.string.prefKey_touchAreaVerticalPosition)) ||
-//                key.equals(getString(R.string.prefKey_touchAreaHorizontalPosition))) {
-//
-//                if (serviceInterface != null) {
-//                    try {
-//                        serviceInterface.resizeTouchArea();
-//                    } catch (RemoteException e) {
-//                        // ignore this error
-//                    }
-//                }
-//            }
-        }
-    };
-
+                    if (serviceInterface != null) {
+                        try {
+                            serviceInterface.resizeTouchArea();
+                        } catch (RemoteException e) {
+                            // ignore this error
+                        }
+                    }
+                }
+            }
+        };
 
     protected ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
             serviceInterface = BackgroundServiceInterface.Stub.asInterface(binder);
+            try {
+                serviceInterface.makeTouchAreaVisible();
+            } catch (RemoteException e) {
+                // ignore this error
+            }
         }
 
         @Override
@@ -82,21 +84,13 @@ public class SettingsActivity extends Activity
         bindService(new Intent(this, BackgroundService.class), serviceConnection,
             Context.BIND_AUTO_CREATE);
 
-        if (serviceInterface != null) {
-            try {
-                serviceInterface.makeTouchAreaVisible();
-            } catch (RemoteException e) {
-                // ignore this error
-            }
-        }
+        new Settings(this).registerPreferenceListener(preferenceListener);
     }
 
-
-
     @Override
-    protected void onDestroy() {
-        if (serviceInterface != null)
-        {
+    protected void onPause() {
+        super.onPause();
+        if (serviceInterface != null) {
             try {
                 serviceInterface.makeTouchAreaInvisible();
             } catch (RemoteException e) {
@@ -105,4 +99,15 @@ public class SettingsActivity extends Activity
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (serviceInterface != null) {
+            try {
+                serviceInterface.makeTouchAreaVisible();
+            } catch (RemoteException e) {
+                // ignore this exception
+            }
+        }
+    }
 }
