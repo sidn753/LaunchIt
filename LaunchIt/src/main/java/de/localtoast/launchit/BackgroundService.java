@@ -143,24 +143,28 @@ public class BackgroundService extends Service {
         WindowManager.LayoutParams params = getTouchAreaLayoutParams();
         WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         touchArea.setBackgroundColor(touchAreaColor);
+        removeView();
+        wm.addView(touchArea, params);
+    }
+
+    private void removeView() {
+        WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         try {
             wm.removeView(sidebar);
-            wm.removeView(touchArea);
-        } catch (IllegalArgumentException e) {
-            // if the view wasn't attached, we just continue
+        } catch (IllegalArgumentException e1) {
+            try {
+                wm.removeView(touchArea);
+            } catch (IllegalArgumentException e2) {
+                // if now view was attached, we just do nothing
+            }
         }
-        wm.addView(touchArea, params);
     }
 
     private void refreshTouchArea() {
         WindowManager.LayoutParams params = getTouchAreaLayoutParams();
         WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         touchArea.setBackgroundColor(touchAreaColor);
-        try {
-            wm.removeView(touchArea);
-        } catch (IllegalArgumentException e) {
-            // if the view wasn't attached, we just continue
-        }
+        removeView();
         wm.addView(touchArea, params);
     }
 
@@ -170,8 +174,7 @@ public class BackgroundService extends Service {
             new WindowManager.LayoutParams(settings.getTouchAreaWidth(),
                 settings.getTouchAreaHeight(), WindowManager.LayoutParams.TYPE_PHONE,
                 receiveTouchEvents | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                PixelFormat.TRANSLUCENT
-            );
+                PixelFormat.TRANSLUCENT);
 
         int horizontalPos = Gravity.RIGHT;
         if (settings.isTouchAreaPositionLeftEdge()) {
@@ -212,11 +215,7 @@ public class BackgroundService extends Service {
                 );
             params.gravity = Gravity.TOP | Gravity.RIGHT;
 
-            try {
-                wm.removeView(touchArea);
-            } catch (IllegalArgumentException e) {
-                // if the view wasn't attached, we just continue
-            }
+            removeView();
             wm.addView(sidebar, params);
             // TODO move this animation stuff in some sort of gui class or directly to the view
             Animation animation = AnimationUtils.loadAnimation(context, R.anim.slide_in_right);
@@ -266,22 +265,8 @@ public class BackgroundService extends Service {
 
     @Override
     public void onDestroy() {
+        removeView();
         super.onDestroy();
-        if (touchArea != null && !sidebarVisible) {
-            WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
-            try {
-                wm.removeView(touchArea);
-            } catch (IllegalArgumentException e) {
-                // if the view wasn't attached, we just continue
-            }
-        } else if (sidebar != null && sidebarVisible) {
-            WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
-            try {
-                wm.removeView(sidebar);
-            } catch (IllegalArgumentException e) {
-                // if the view wasn't attached, we just continue
-            }
-        }
     }
 
     private class AppListUpdater extends TimerTask {
