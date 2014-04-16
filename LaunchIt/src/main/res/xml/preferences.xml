@@ -49,4 +49,13 @@
             android:summary="Defines, if the touch area is placed on the left edge of the screen"
             android:defaultValue="false"/>
     </PreferenceCategory>
+    <PreferenceCategory
+        android:key="@string/prefKey_autostartGroup"
+        android:title="@string/pref_autostart_group">
+        <SwitchPreference
+            android:key="@string/prefKey_autostart"
+            android:title="@string/pref_autostart"
+            android:summary="If switched on, Launch it! starts automatically, when the phone boots"
+            android:defaultValue="false"/>
+    </PreferenceCategory>
 </PreferenceScreen>

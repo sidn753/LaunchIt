@@ -24,4 +24,7 @@
     <string name="prefKey_touchAreaHeight">touchAreaHeight</string>
     <string name="prefKey_touchAreaVerticalPosition">touchAreaVerticalPosition</string>
     <string name="prefKey_touchAreaWidth">touchAreaWidth</string>
+
+    <string name="prefKey_autostartGroup">autostartGroup</string>
+    <string name="prefKey_autostart">autostart</string>
 </resources>

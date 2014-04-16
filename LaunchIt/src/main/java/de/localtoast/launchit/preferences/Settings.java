@@ -61,4 +61,8 @@ public class Settings {
             .valueOf(settings.getString(context.getString(R.string.prefKey_touchAreaWidth), "100"));
     }
 
+    public boolean isAutostartSwitchedOn() {
+        return settings.getBoolean(context.getString(R.string.prefKey_autostart), false);
+    }
+
 }

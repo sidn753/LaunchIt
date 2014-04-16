@@ -29,6 +29,12 @@
         android:theme="@style/AppTheme">
         <service android:name="de.localtoast.launchit.BackgroundService"/>
 
+        <receiver android:name="de.localtoast.launchit.Autostarter">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+
         <activity
             android:name=".StartingActivity"
             android:label="@string/app_name"
