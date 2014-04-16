@@ -19,6 +19,7 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:+'
+    debugCompile 'com.android.support:appcompat-v7:+'
+    debugCompile 'com.android.support:support-v4:19.+'
     debugCompile 'com.android.support:appcompat-v7:+'
 }

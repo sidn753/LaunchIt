@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ This file is part of Launch It!.
+  ~ Copyright (c) 2014.
+  ~
+  ~ Launch It! is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Launch It! is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with Launch It!.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+        android:key="@string/prefKey_touchAreaGroup"
+        android:title="@string/pref_touch_area_group">
+        <EditTextPreference
+            android:key="@string/prefKey_touchAreaWidth"
+            android:title="@string/pref_touch_area_width"
+            android:summary="Defines the width of the touch area"
+            android:numeric="integer"
+            android:defaultValue="100"
+            android:maxLength="4"/>
+        <EditTextPreference
+            android:key="@string/prefKey_touchAreaHeight"
+            android:title="@string/pref_touch_area_height"
+            android:summary="Defines the height of the touch area"
+            android:numeric="integer"
+            android:defaultValue="100"
+            android:maxLength="4"/>
+        <EditTextPreference
+            android:key="@string/prefKey_touchAreaVerticalPosition"
+            android:title="@string/pref_touch_area_vertical_position"
+            android:summary="Defines the vertical position of the touch area"
+            android:numeric="integer"
+            android:defaultValue="0"
+            android:maxLength="4"/>
+        <SwitchPreference
+            android:key="@string/prefKey_touchAreaHorizontalPosition"
+            android:title="@string/pref_touch_area_horizontal_position"
+            android:summary="Defines, if the touch area is placed on the left edge of the screen"
+            android:defaultValue="false"/>
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="@string/prefKey_autostartGroup"
+        android:title="@string/pref_autostart_group">
+        <SwitchPreference
+            android:key="@string/prefKey_autostart"
+            android:title="@string/pref_autostart"
+            android:summary="If switched on, Launch it! starts automatically, when the phone boots"
+            android:defaultValue="false"/>
+    </PreferenceCategory>
+</PreferenceScreen>

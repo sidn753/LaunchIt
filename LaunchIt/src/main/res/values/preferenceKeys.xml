@@ -1,3 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+
 <!--
   ~ This file is part of Launch It!.
   ~ Copyright (c) 2014.
@@ -16,10 +18,13 @@
   ~ along with Launch It!.  If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="de.localtoast.launchit.StartingActivity"
-    tools:ignore="MergeRootFrame" />
+<resources>
+    <string name="prefKey_touchAreaGroup">touchAreaGroup</string>
+    <string name="prefKey_touchAreaHorizontalPosition">touchAreaHorizontalPosition</string>
+    <string name="prefKey_touchAreaHeight">touchAreaHeight</string>
+    <string name="prefKey_touchAreaVerticalPosition">touchAreaVerticalPosition</string>
+    <string name="prefKey_touchAreaWidth">touchAreaWidth</string>
+
+    <string name="prefKey_autostartGroup">autostartGroup</string>
+    <string name="prefKey_autostart">autostart</string>
+</resources>

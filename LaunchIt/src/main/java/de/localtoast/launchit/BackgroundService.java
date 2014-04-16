@@ -18,14 +18,18 @@
 
 package de.localtoast.launchit;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
-import android.graphics.Point;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.RemoteException;
+import android.support.v4.app.NotificationCompat;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -42,11 +46,14 @@ import java.util.TimerTask;
 
 import de.localtoast.launchit.applistview.AppListView;
 import de.localtoast.launchit.db.SQLiteHelper;
+import de.localtoast.launchit.preferences.Settings;
+import de.localtoast.launchit.preferences.SettingsActivity;
 
 /**
  * Created by Arne Augenstein on 2/15/14.
  */
 public class BackgroundService extends Service {
+
     private static final int FADING_DURATION_MS = 280;
 
     private Timer timer = new Timer();
@@ -57,11 +64,37 @@ public class BackgroundService extends Service {
 
     boolean sidebarVisible = false;
 
+    int touchAreaColor = 0x00000000;
+    int receiveTouchEvents = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL;
+
     private AppListView appListView;
+
+    private final BackgroundServiceInterface.Stub binder = new BackgroundServiceInterface.Stub() {
+        // TODO make normal class out of this inner class
+
+        @Override
+        public void makeTouchAreaInvisible() throws RemoteException {
+            touchAreaColor = 0x00000000;
+            receiveTouchEvents = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL;
+            refreshTouchArea();
+        }
+
+        @Override
+        public void makeTouchAreaVisible() throws RemoteException {
+            touchAreaColor = 0x992DE397;
+            receiveTouchEvents = WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
+            refreshTouchArea();
+        }
+
+        @Override
+        public void resizeTouchArea() throws RemoteException {
+            refreshTouchArea();
+        }
+    };
 
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return binder;
     }
 
     @Override
@@ -76,6 +109,29 @@ public class BackgroundService extends Service {
         WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         wm.addView(touchArea, params);
 
+        addNotificationIcon();
+    }
+
+    private void addNotificationIcon() {
+        Context context = getBaseContext();
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context)
+            .setSmallIcon(R.drawable.abc_ab_bottom_solid_dark_holo).setContentTitle("Launch it!")
+            .setContentText("Touch for preferences").setOngoing(true);
+
+        Intent resultIntent = new Intent(context, SettingsActivity.class);
+
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+        // Adds the back stack for the Intent (but not the Intent itself)
+        stackBuilder.addParentStack(SettingsActivity.class);
+        // Adds the Intent that starts the Activity to the top of the stack
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent =
+            stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        mBuilder.setContentIntent(resultPendingIntent);
+        NotificationManager mNotificationManager =
+            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        mNotificationManager.notify(1, mBuilder.build());
     }
 
     public void switchToTouchArea() {
@@ -115,20 +171,46 @@ public class BackgroundService extends Service {
     private void switchToTouchAreaPostAnimation() {
         WindowManager.LayoutParams params = getTouchAreaLayoutParams();
         WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
-        wm.removeView(sidebar);
+        touchArea.setBackgroundColor(touchAreaColor);
+        removeView();
+        wm.addView(touchArea, params);
+    }
+
+    private void removeView() {
+        WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
+        try {
+            wm.removeView(sidebar);
+        } catch (IllegalArgumentException e1) {
+            try {
+                wm.removeView(touchArea);
+            } catch (IllegalArgumentException e2) {
+                // if now view was attached, we just do nothing
+            }
+        }
+    }
+
+    private void refreshTouchArea() {
+        WindowManager.LayoutParams params = getTouchAreaLayoutParams();
+        WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
+        touchArea.setBackgroundColor(touchAreaColor);
+        removeView();
         wm.addView(touchArea, params);
     }
 
     private WindowManager.LayoutParams getTouchAreaLayoutParams() {
-        WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
-        Point size = new Point();
-        wm.getDefaultDisplay().getSize(size);
-
+        Settings settings = new Settings(getBaseContext());
         WindowManager.LayoutParams params =
-            new WindowManager.LayoutParams(30, size.y / 2, WindowManager.LayoutParams.TYPE_PHONE,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT);
-        params.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+            new WindowManager.LayoutParams(settings.getTouchAreaWidth(),
+                settings.getTouchAreaHeight(), WindowManager.LayoutParams.TYPE_PHONE,
+                receiveTouchEvents | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                PixelFormat.TRANSLUCENT);
+
+        int horizontalPos = Gravity.RIGHT;
+        if (settings.isTouchAreaPositionLeftEdge()) {
+            horizontalPos = Gravity.LEFT;
+        }
+        params.gravity = Gravity.TOP | horizontalPos;
+        params.y = settings.getTouchAreaHorizontalPosition();
         return params;
     }
 
@@ -136,7 +218,7 @@ public class BackgroundService extends Service {
         if (touchArea == null) {
 
             touchArea = new LinearLayout(this);
-            touchArea.setBackgroundColor(0x00ff0000);
+            touchArea.setBackgroundColor(touchAreaColor);
             touchArea.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
@@ -158,10 +240,11 @@ public class BackgroundService extends Service {
                 new WindowManager.LayoutParams(225, WindowManager.LayoutParams.MATCH_PARENT,
                     WindowManager.LayoutParams.TYPE_PHONE,
                     WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH |
-                        WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT);
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL, PixelFormat.TRANSLUCENT
+                );
             params.gravity = Gravity.TOP | Gravity.RIGHT;
 
-            wm.removeView(touchArea);
+            removeView();
             wm.addView(sidebar, params);
             // TODO move this animation stuff in some sort of gui class or directly to the view
             Animation animation = AnimationUtils.loadAnimation(context, R.anim.slide_in_right);
@@ -211,14 +294,8 @@ public class BackgroundService extends Service {
 
     @Override
     public void onDestroy() {
+        removeView();
         super.onDestroy();
-        if (touchArea != null && !sidebarVisible) {
-            WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
-            wm.removeView(touchArea);
-        } else if (sidebar != null && sidebarVisible) {
-            WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
-            wm.removeView(sidebar);
-        }
     }
 
     private class AppListUpdater extends TimerTask {
@@ -247,4 +324,5 @@ public class BackgroundService extends Service {
             appListHelper.addNewRunningApp(packageName);
         }
     }
+
 }

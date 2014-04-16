@@ -3,6 +3,12 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="" />
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../QuasselDroid" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../QuasselDroid" vcs="Git" />
     <mapping directory="/mnt/systemStuff/home/arne/mystuff/devel/android/LaunchIt" vcs="Git" />
   </component>
 </project>
