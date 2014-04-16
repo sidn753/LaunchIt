@@ -19,6 +19,7 @@
   -->
 
 <resources>
+    <string name="prefKey_touchAreaGroup">touchAreaGroup</string>
     <string name="prefKey_touchAreaHorizontalPosition">touchAreaHorizontalPosition</string>
     <string name="prefKey_touchAreaHeight">touchAreaHeight</string>
     <string name="prefKey_touchAreaVerticalPosition">touchAreaVerticalPosition</string>
