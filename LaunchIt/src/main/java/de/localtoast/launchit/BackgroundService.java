@@ -18,7 +18,10 @@
 
 package de.localtoast.launchit;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
@@ -26,6 +29,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
+import android.support.v4.app.NotificationCompat;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -43,6 +47,7 @@ import java.util.TimerTask;
 import de.localtoast.launchit.applistview.AppListView;
 import de.localtoast.launchit.db.SQLiteHelper;
 import de.localtoast.launchit.preferences.Settings;
+import de.localtoast.launchit.preferences.SettingsActivity;
 
 /**
  * Created by Arne Augenstein on 2/15/14.
@@ -103,6 +108,30 @@ public class BackgroundService extends Service {
         WindowManager.LayoutParams params = getTouchAreaLayoutParams();
         WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         wm.addView(touchArea, params);
+
+        addNotificationIcon();
+    }
+
+    private void addNotificationIcon() {
+        Context context = getBaseContext();
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context)
+            .setSmallIcon(R.drawable.abc_ab_bottom_solid_dark_holo).setContentTitle("Launch it!")
+            .setContentText("Touch for preferences").setOngoing(true);
+
+        Intent resultIntent = new Intent(context, SettingsActivity.class);
+
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+        // Adds the back stack for the Intent (but not the Intent itself)
+        stackBuilder.addParentStack(SettingsActivity.class);
+        // Adds the Intent that starts the Activity to the top of the stack
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent =
+            stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        mBuilder.setContentIntent(resultPendingIntent);
+        NotificationManager mNotificationManager =
+            (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        mNotificationManager.notify(1, mBuilder.build());
     }
 
     public void switchToTouchArea() {
