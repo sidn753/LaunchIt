@@ -41,6 +41,8 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import net.danlew.android.joda.ResourceZoneInfoProvider;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -100,6 +102,9 @@ public class BackgroundService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        // initialize joda time library
+        ResourceZoneInfoProvider.init(this);
+
         appListUpdater = new AppListUpdater();
         timer.scheduleAtFixedRate(appListUpdater, 0, 60000);
 
@@ -285,7 +290,7 @@ public class BackgroundService extends Service {
         } else {
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
-            new SQLiteHelper(this).incrementLaunchCounter(packageName);
+            new SQLiteHelper(this).incrementPriorityCounter(packageName);
             appListUpdater.addNewRunningApp(packageName);
             appListView.update();
             switchToTouchArea();

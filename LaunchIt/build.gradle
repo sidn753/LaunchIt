@@ -22,4 +22,5 @@ dependencies {
     debugCompile 'com.android.support:appcompat-v7:+'
     debugCompile 'com.android.support:support-v4:19.+'
     debugCompile 'com.android.support:appcompat-v7:+'
+    debugCompile 'net.danlew:android.joda:2.3.2'
 }

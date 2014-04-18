@@ -24,8 +24,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import org.joda.time.DateTime;
+
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Collections;
 import java.util.List;
 
 import de.localtoast.launchit.AppMetaData;
@@ -56,7 +58,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 
         String createAppTable = "create table " + TABLE_APPS + " (" + APPS_KEY_ID +
             " integer primary key autoincrement, " + APPS_PACKAGE_NAME + " text, " +
-            APPS_PRIORITYLAUNCH_COUNT + " integer, " + APPS_LAST_INCREMENT + " integer)";
+            APPS_PRIORITY_COUNTER + " integer, " + APPS_LAST_INCREMENT + " text)";
 
         db.execSQL(createAppTable);
     }
@@ -94,23 +96,54 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 
         List<AppMetaData> apps = new ArrayList<AppMetaData>();
         while (cursor.moveToNext()) {
-            Date lastIncrement = new Date(cursor.getInt(2));
-            apps.add(new AppMetaData(cursor.getString(0), lastIncrement, cursor.getInt(1)));
+            apps.add(getAppMetaData(cursor));
         }
+
+        Collections.sort(apps, Collections.reverseOrder());
 
         return apps;
     }
 
-    public void setPriorityCounter(String appPackageName, int counter) {
+    private AppMetaData getAppMetaData(Cursor cursor) {
+        DateTime lastIncrement = DateTime.parse(cursor.getString(2));
+        return new AppMetaData(cursor.getString(0), lastIncrement, cursor.getInt(1));
+    }
+
+    /**
+     * @return a specific app
+     */
+    private AppMetaData getApp(String appPackageName) {
+        String query = "select " + APPS_PACKAGE_NAME + ", " + APPS_PRIORITY_COUNTER + ", " +
+            APPS_LAST_INCREMENT + " from " + TABLE_APPS + " where " + APPS_PACKAGE_NAME + " = ?";
+
         SQLiteDatabase db = getWritableDatabase();
+        Cursor cursor = db.rawQuery(query, new String[]{appPackageName});
 
-        ContentValues values = new ContentValues();
-        values.put(APPS_PACKAGE_NAME, appPackageName);
-        values.put(APPS_PRIORITY_COUNTER, counter);
+        if (cursor.moveToFirst()) {
+            return getAppMetaData(cursor);
+        }
 
-        db.update(TABLE_APPS, values, APPS_PACKAGE_NAME + " = ?", new String[]{appPackageName});
+        return null;
+    }
 
-        db.close();
+    public void incrementPriorityCounter(String appPackageName) {
+
+        AppMetaData app = getApp(appPackageName);
+
+        int priority = 1;
+        if (app == null) {
+            addApp(appPackageName);
+        } else {
+            SQLiteDatabase db = getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(APPS_PACKAGE_NAME, appPackageName);
+            values.put(APPS_PRIORITY_COUNTER, app.getEffectivePriority() + 1);
+            values.put(APPS_LAST_INCREMENT, DateTime.now().toString());
+
+            db.update(TABLE_APPS, values, APPS_PACKAGE_NAME + " = ?", new String[]{appPackageName});
+
+            db.close();
+        }
     }
 
     private void addApp(String appPackageName) {
@@ -119,6 +152,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(APPS_PACKAGE_NAME, appPackageName);
         values.put(APPS_PRIORITY_COUNTER, 1);
+        values.put(APPS_LAST_INCREMENT, DateTime.now().toString());
 
         db.insert(TABLE_APPS, null, values);
 

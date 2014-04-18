@@ -27,6 +27,7 @@ public class StartingActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         Intent intent = new Intent(this, BackgroundService.class);
         startService(intent);
 
